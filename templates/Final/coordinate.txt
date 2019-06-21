@@ -1,0 +1,18 @@
+<script>
+L.marker([48.8448057,2.3734794],{icon: new L.AwesomeNumberMarkers({number:5, markerColor: color}),title:'paris gare de lyon'}).addTo(map).bindTooltip('paris gare de lyon',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.829914,2.3786838],{icon: new L.AwesomeNumberMarkers({number:99, markerColor: color}),title:'paris rive gauche'}).addTo(map).bindTooltip('paris rive gauche',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8260904,2.3573505],{icon: new L.AwesomeNumberMarkers({number:2, markerColor: color}),title:'paris tolbiac'}).addTo(map).bindTooltip('paris tolbiac',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8765925,2.3611628],{icon: new L.AwesomeNumberMarkers({number:1, markerColor: color}),title:'paris gare de l’est'}).addTo(map).bindTooltip('paris gare de l’est',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([43.7051009,7.25872204889995],{icon: new L.AwesomeNumberMarkers({number:5, markerColor: color}),title:'technicentre paca sncf'}).addTo(map).bindTooltip('technicentre paca sncf',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([50.63607,3.07135],{icon: new L.AwesomeNumberMarkers({number:35, markerColor: color}),title:'gare de lille flandres'}).addTo(map).bindTooltip('gare de lille flandres',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8750802,2.3235709],{icon: new L.AwesomeNumberMarkers({number:35, markerColor: color}),title:'paris saint-lazare'}).addTo(map).bindTooltip('paris saint-lazare',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([43.3032722,5.3811746],{icon: new L.AwesomeNumberMarkers({number:1, markerColor: color}),title:'gare de marseille saint charles'}).addTo(map).bindTooltip('gare de marseille saint charles',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.6443057,2.7537863],{icon: new L.AwesomeNumberMarkers({number:41, markerColor: color}),title:'ile de france'}).addTo(map).bindTooltip('ile de france',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8774344,2.3589456],{icon: new L.AwesomeNumberMarkers({number:33, markerColor: color}),title:'paris est'}).addTo(map).bindTooltip('paris est',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8408073,2.3218471],{icon: new L.AwesomeNumberMarkers({number:15, markerColor: color}),title:'paris montparnasse'}).addTo(map).bindTooltip('paris montparnasse',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8401398,2.3870484],{icon: new L.AwesomeNumberMarkers({number:35, markerColor: color}),title:'paris sud est'}).addTo(map).bindTooltip('paris sud est',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.8415957,2.3659926],{icon: new L.AwesomeNumberMarkers({number:20, markerColor: color}),title:'paris austerlitz'}).addTo(map).bindTooltip('paris austerlitz',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+L.marker([48.88051,2.3547609],{icon: new L.AwesomeNumberMarkers({number:71, markerColor: color}),title:'paris gare du nord'}).addTo(map).bindTooltip('paris gare du nord',{ permanent: true,direction:'center',offset:[0,60]}).on('click', showlist); 
+function showlist(e){var title=this.options.title;
+$.post('/markerclick',{title:title},function(response){$('#docsname').html(response);})
+}</script>

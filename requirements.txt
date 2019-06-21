@@ -1,0 +1,8 @@
+flask
+plotly
+colorlover
+dateparser
+geopy
+pandas
+regex
+spacy

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+  	<meta name="viewport" content="width=device-width, initial-scale=1">
+  	<link rel="stylesheet" href="{{ url_for('static', filename='src/leaflet_awesome_number_markers.css') }}">
+    <link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+  	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js" integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q==" crossorigin=""></script>
+	<script src="{{ url_for('static', filename='src/leaflet_awesome_number_markers.js') }}""></script>
+	<script src="{{ url_for('static', filename='js/displacy-ent.js') }}""></script>
+	<link href='https://fonts.googleapis.com/css?family=Playfair+Display:700,900|Fira+Sans:400,400italic' rel='stylesheet' type='text/css'>
+    
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css" rel="stylesheet"/> <!-- For sorting screening table-->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/3djs.css') }}">
+	<title>Demo for SNCF</title>
+
+  <!--The colors boxes for text-tagged legends-->
+  <style type="text/css"> 
+      .box{
+        width:16px;
+        height:16px;
+      }
+  </style>
+</head>
+<body>
+	<nav class="navbar navbar-inverse">
+  <div class="container-fluid" >
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="#">Demo</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li id='maplink' class="active"><a href="#" onclick="changediv('maplink')">MAP</a></li>
+        <li id='timelinelink'><a href="#" onclick="changediv('timelinelink')">TIMELINE</a></li>
+        <li id='3djslink'><a href="#" onclick="changediv('3djslink')">DOCUMENT RELATION</a></li>
+        <li id='barplotlink'><a href="#" onclick="changediv('barplotlink')">BARPLOT</a></li>
+		    <li id='tagslink'><a href="#" onclick="changediv('tagslink')">TEXT TAGGED</a></li>
+        <li id='screenlink'><a href="#" onclick="changediv('screenlink')" class="screening">SCREENING</a></li>
+        <!--<li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Page 1 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Page 1-1</a></li>
+            <li><a href="#">Page 1-2</a></li>
+            <li><a href="#">Page 1-3</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Page 2</a></li>
+        <li><a href="#">Page 3</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>-->
+      </ul>
+	  <form class="navbar-form navbar-right" role="search"  onsubmit="return ner()">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search a document by name" id="namedocument" required>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default searchdoc">
+                    <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid parent">
+	<div class="container-fluid map row" >
+		<!-- Sidebar -->
+		<div class="col-sm-8" id="map" style="height: 600px; border: solid black 2px"></div>
+		<div id="docsname" class="col-sm-4" style="border: solid black 2px; overflow-y: auto;height: 600px;">
+           <h2>Documents list</h2>
+        </div>
+		<p class="mapresult"></p>
+	</div>
+  <div class="container-fluid screen row" style="display: none;overflow-y: auto;height: 600px;border-bottom: solid black 2px" >
+    <!-- Sidebar -->
+    
+  </div>
+	<div class="container-fluid timeline row" style="border: solid black 2px; display: none;">
+		<div class="container-fluid myjtline col-sm-8" ></div>
+		<div id="datename" class="col-sm-4" style="border: solid black 2px; overflow-y: auto;height: 600px;">
+           <h2>Documents list</h2>
+        </div>
+	</div>
+	<div class="container-fluid row 3djs" style="display: none;">
+		<section class=" container-fluid col-sm-8" style="text-align: center"></section>
+		<div class=" container-fluid col-sm-4" style="text-align: center">
+			<p style="border-top: solid black 2px;border-left: solid black 2px;border-right: solid black 2px"><em style="color: red">Rouge:</em> les documents cités<br></p><br>
+			<p style="border-bottom: solid black 2px;border-left: solid black 2px;border-right: solid black 2px"> <em style="color: green">Vert:</em> les documents le citant</p>
+      <div class="container-fluid docrel" style="border: solid black 2px; display: none;overflow-y: auto;height: 600px;"></div>
+		</div>
+
+	</div>
+	<div class="container-fluid row tags" style="display: none">
+		<div class=" container-fluid col-sm-8 tag1" style="overflow-y: auto;height: 600px; border:solid black 2px "></div>
+		<div class=" container-fluid col-sm-4 colors" style="overflow-y: auto;height: 600px; border:solid black 2px ">
+      <br>
+    </div>
+	</div>
+  <div class="container-fluid row barplot" style="display: none;">
+    <div class=" container-fluid col-sm-8 plot" style="text-align: center;border:solid black 2px;height: 600px;"></div>
+    <div class=" container-fluid col-sm-4" >
+      <form action="#" method="post" onsubmit="return false">
+        <input class="domaine" type="checkbox" name="domaine" value="Domaine"/>DOMAINE
+        <br /> 
+        <input class="place" type="checkbox" name="place"  value="Place"/> PLACE
+        <br />
+        <input class="category" type="checkbox" name="javascript" value="Category"/> CATEGORY
+        <br>
+        <input class="bf" type="checkbox" name="place"  value="Bloc Fonctionnel"/> BLOC FONCTIONNEL
+        <br />
+        <br>
+        <input type="submit" name="Plot" value="PLOT" onclick="graph()">
+      </form>
+      <br><p style="text-align: center;color: red">Choose one or two features for plotting</p>
+    </div>
+  </div>
+</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+<script src="{{ url_for('static', filename='js/FileSaver.min.js') }}""></script>
+<script src="{{ url_for('static', filename='js/excel-gen.js') }}""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/dataTables.bootstrap.min.js"></script>  <!-- For sorting screening table-->
+<script src="{{ url_for('static', filename='js/3djs.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modernizr.js') }}"></script> 
+<script src="{{ url_for('static', filename='js/jtline.js') }}"></script>
+<script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstable.js') }}"></script>
+<!--<script src="js/jquery-2.1.4.js"></script>
+<script src="js/jquery.mobile.custom.min.js"></script>-->
+<!--<script src="js/main.js"></script>--> <!-- Resource jQuery -->
+<script type="text/javascript">
+	var map = L.map('map').setView([48.88051, 2.3547609], 12.9);
+
+	// create the tile layer with correct attribution
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox.streets'
+	}).addTo(map);
+
+	var color = "blue";
+</script>
+<script type="text/javascript">
+	function changediv(anchor){
+		var array=["map","timeline","3djs","barplot","tags","screen"];
+		for (var i = array.length - 1; i >= 0; i--) {
+			$("."+array[i]).hide();
+      active=array[i]+"link";
+      $("#"+active).removeClass("active");
+		};
+		var str = anchor.replace("link", "");
+		$("."+str).show();
+    $("#"+str+"link").addClass("active");
+	}
+
+	
+  function graph(){
+    var array=["domaine","place","category","bf"];
+    var result=[];
+    for (var i = array.length - 1; i >= 0; i--) {
+      if($("."+array[i]+"").is(':checked')){
+        result.push($("."+array[i]+"").attr("value"));
+      }
+    }
+    if(result.length==1){
+      $.post("/graph",{sel1:result[0],sel2:result[0]},function(data){
+        $.get( "{{ url_for('static', filename='barplot.html') }}",{ "_": $.now() }, function( data ) {
+		  $( ".plot" ).empty();
+          $( ".plot" ).html( data );
+        });
+      });
+    }
+    else if (result.length==2) {
+      $.post("/graph",{sel1:result[0],sel2:result[1]},function(data){
+        $.get( "{{ url_for('static', filename='barplot.html') }}",{ "_": $.now() }, function( data ) {
+		  $( ".plot" ).empty(); 
+          $( ".plot" ).html( data );
+        });
+      });
+    }
+    else{
+      alert("You can't plot for more than two features");
+    }
+  }
+
+  function ner(){
+    var name=$("#namedocument").val();
+    if(name!=""){
+      changediv('tagslink');
+      $.post("/tag",{name:name},function(data){
+        $(".tag1").empty();
+        $(".tag1").html("<em>Wait a moment...</em>");
+        $(".tag1").html(data);
+      });
+
+      return false;
+    }
+    return false;
+  }
+  function showTTagged(name){
+    if(name!=""){
+      var name = name.replace(/__1/g, "'");
+      changediv('tagslink');
+      $.post("/tag",{name:name},function(data){
+        $(".tag1").empty();
+        $(".tag1").html("<em>Wait a moment...</em>");
+        index=data.indexOf("</div>") //detect the end of the html result
+        html=data.substring(0, index+6);
+        $(".tag1").html(html);
+        tagcolors=data.substring(index+6,data.length);
+        //work on the colors
+        tagcolors=tagcolors.split(";");
+        html="<br><p>Document: <span style='font-weight:bold'>"+name+"</span></p><br><p style='font-size:200%;text-align:center'>List of tags</p><br>";
+        for (var i = 0; i < tagcolors.length; i++) {
+          res=tagcolors[i];
+          hash=res.indexOf("#");
+          html+='<div class="container-fluid row"><div class="box col-sm-3" style="background:'+res.substring(hash,res.length)+';border: solid black 2px"></div>';
+          html+='<div class="col-sm-9">'+res.substring(0,hash)+'</div></div><br>';
+        $(".colors").html(html);
+        };
+      });
+    }
+  }
+	
+  
+
+  $(".screening").click(function () {
+    $.post("/screening",function(data){
+      html='<button id="generateexcel" class="btn btn-danger">Generate Excel File</button> The date format is year-month-day<br/><br />';
+      $('.screen').html(html+data);
+      $('#screening').DataTable({
+        "lengthMenu": [[-1,10, 25, 50], ["All",10, 25, 50]]
+      });
+      
+      $("#generateexcel").click(function () {
+          //Generate excel file
+          excel = new ExcelGen({
+            "src_id": "screening",
+            "show_header": true
+          });
+            excel.generate();
+      });
+      //Editable table
+      $('#screening').SetEditable({
+          columnsEd: "2,3,4,5,6,7"
+        }); 
+      //alert(TableToCSV("screening", ",")); //Save the the table to csv
+    });
+  });
+
+  
+  //var name=$("#namedocument").val();
+	$("#docs").load("{{ url_for('static', filename='timelinedocs.txt') }}");
+	$("#timeline").load("{{ url_for('static', filename='timeline.txt') }}");
+	$(".mapresult").load("{{ url_for('static', filename='coordinate.txt') }}");
+	$("#docsname").load("{{ url_for('static', filename='nameslist.txt') }}");
+	$("#datename").load("{{ url_for('static', filename='withoutdate.txt') }}");
+
+  //Edition of dataframe
+  function rowAcep(but) {
+//Acepta los cambios de la edición
+    var $row = $(but).parents('tr');  //accede a la fila
+    var $cols = $row.find('td');  //lee campos
+    if (!ModoEdicion($row)) return;  //Ya está en edición
+    //Está en edición. Hay que finalizar la edición
+    if(confirm("Are you sure ?")){
+      IterarCamposEdit($cols, function($td) {  //itera por la columnas
+          var cont = $td.find('input').val(); //lee contenido del input
+          //Edition by DGT----------------------------- (add generate excel and a prompt for being sure)
+          cont="<span>"+cont+"</span>"; 
+          $td.html(cont);  //fija contenido y elimina controles
+      });
+      FijModoNormal(but);
+      params.onEdit($row);
+      $.post("/editdataframe",{result:TableToCSV("screening",";")},function(data){
+      }); //Save the new version of the dataframe
+    }
+}
+function rowElim(but) {  //Elimina la fila actual
+    var $row = $(but).parents('tr');  //accede a la fila
+    if(confirm("Are you sure ?")){
+      params.onBeforeDelete($row);
+      $row.remove();
+      params.onDelete();
+      $.post("/editdataframe",{result:TableToCSV("screening",";")},function(data){
+      }); //Save the new version of the dataframe
+    }
+}
+</script>
+<script type="text/javascript">
+	d3.json("{{ url_for('static', filename='flare.json') }}", function(error, classes) {
+      if (error) throw error;
+
+      var root = packageHierarchy(classes)
+          .sum(function(d) { return d.size; });
+
+      cluster(root);
+
+      link = link
+        .data(packageImports(root.leaves()))
+        .enter().append("path")
+          .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+          .attr("class", "link")
+          .attr("d", line);
+
+      node = node
+        .data(root.leaves())
+        .enter().append("text")
+          .attr("class", "node")
+          .attr("dy", "0.31em")
+          .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
+          .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+          .text(function(d) { return d.data.key; })
+          //.on("mouseover", mouseovered)
+          //.on("mouseout", mouseouted)
+          .on("click", mouseovered);
+
+      $(".node").click(function() {
+
+        var name=$(this).text();
+        $(".node").css("fill","#bbb");
+        $(this).css("font-weight","700");
+        $(this).css("fill","#000");
+        $(".node--source").css("fill","#2ca02c");
+        $(".node--target").css("fill","#d62728");
+        var x = document.getElementsByClassName("node--source"); //The sources
+        var y = document.getElementsByClassName("node--target"); //The targetted
+        html="<br><p>Document: <span style='font-weight:bold'>"+name+"</span></p><br><div class='container-fluid row'>";
+        source="<div class='container-fluid col-sm-5'><p style='color:green'><u>Source</u></p><br>";
+        target="<div class='container-fluid col-sm-5'><p style='color:red'><u>Target</u></p><br>";
+        for (var i = y.length - 1; i >= 0; i--) {
+          target+="<p>- "+y[i].innerHTML+"</p><br>";
+        };
+        target+="</div>";
+        for (var i = x.length - 1; i >= 0; i--) {
+          source+="<p>- "+x[i].innerHTML+"</p><br>";
+        };
+        source+="</div>";
+        html+=source+target;
+        $(".docrel").html(html);
+        $(".docrel").show();
+
+
+      });
+    });
+</script>
+
+</body>
+</html>

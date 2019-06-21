@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.bar {
+  fill: #6B8E23;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
+
+h1 {
+	font-family: "Palatino Linotype";
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 500;
+	line-height: 26.4px;
+}
+
+.shadow {
+-webkit-border-radius: 0% 0% 100% 100% / 0% 0% 8px 8px;
+-webkit-box-shadow: rgba(0, 0, 0,.30) 0 2px 3px;
+}
+.container {
+  margin: 0 auto;
+  margin-top: 20px;;
+
+  height: auto;
+  background: #F2F2F2;
+  border: 1px solid #ccc;
+  box-shadow: 1px 1px 2px #fff inset,
+              -1px -1px 2px #fff inset;
+  border-radius: 3px/6px;         
+    
+    
+}
+
+</style>
+<body>
+	<div class="shadow">
+		<div class="container">
+			<h1 align="center"> Repartition of the full corpus</h1>
+			<svg id="test"  width="1920" height="500"></svg>
+			<br>
+			<br>
+		</div>
+	</div>
+	<div class="shadow">
+		<div class="container">
+			<h1 align="center"> Repartition of the full corpus</h1>
+			<svg id="test2"  width="1920" height="500"></svg>
+			<br>
+			<br>
+		</div>
+	</div>
+	<div class="shadow">
+		<div class="container">
+			<h1 align="center"> Repartition of the full corpus</h1>
+			<svg id="test3"  width="1920" height="500"></svg>
+			<br>
+			<br>
+		</div>
+	</div>
+	</div>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script>
+
+	var svg = d3.select("#test"),
+		margin = {top: 20, right: 20, bottom: 30, left: 40},
+		width = +svg.attr("width") - margin.left - margin.right + 100,
+		height = +svg.attr("height") - margin.top - margin.bottom;
+
+	var x = d3.scaleBand().rangeRound([0, width]).padding(0.2),
+		y = d3.scaleLinear().rangeRound([height , 0]);
+
+	var g = svg.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	d3.tsv("data.tsv", function(d) {
+	  d.frequency = +d.frequency;
+	  return d;
+	}, function(error, data) {
+	  if (error) throw error;
+
+	  x.domain(data.map(function(d) { return d.letter; }));
+	  y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+	  g.append("g")
+		  .attr("class", "axis axis--x")
+		  .attr("transform", "translate(0," + height + ")")
+		  .style("font-size", "90%")
+		  .call(d3.axisBottom(x));
+
+	  g.append("g")
+		  .attr("class", "axis axis--y")
+		  .style("font-size", "90%")
+		  .call(d3.axisLeft(y).ticks(10, "%"))
+		.append("text")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", "0.71em")
+		  .attr("text-anchor", "end")
+		  .text("Frequency");
+
+	  g.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x(d.letter); })
+		  .attr("y", function(d) { return y(d.frequency); })
+		  .attr("width", x.bandwidth())
+		  .attr("height", function(d) { return height - y(d.frequency); });
+	});
+	
+	var svg2 = d3.select("#test2"),
+		margin2 = {top: 20, right: 20, bottom: 30, left: 40},
+		width2 = +svg2.attr("width") - margin2.left - margin2.right,
+		height2 = +svg2.attr("height") - margin2.top - margin2.bottom;
+
+	var x2 = d3.scaleBand().rangeRound([0, width2]).padding(0.2),
+		y2 = d3.scaleLinear().rangeRound([height2 , 0]);
+
+	var g2 = svg2.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	d3.tsv("test2.tsv", function(d) {
+	  d.frequency = +d.frequency;
+	  return d;
+	}, function(error, data) {
+	  if (error) throw error;
+
+	  x2.domain(data.map(function(d) { return d.letter; }));
+	  y2.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+	  g2.append("g")
+		  .attr("class", "axis axis--x")
+		  .attr("transform", "translate(0," + height2 + ")")
+		  .style("font-size", "90%")
+		  .call(d3.axisBottom(x2));
+
+	  g2.append("g")
+		  .attr("class", "axis axis--y")
+		  .style("font-size", "90%")
+		  .call(d3.axisLeft(y2).ticks(10, "%"))
+		.append("text")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", "0.71em")
+		  .attr("text-anchor", "end")
+		  .text("Frequency");
+
+	  g2.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x2(d.letter); })
+		  .attr("y", function(d) { return y2(d.frequency); })
+		  .attr("width", x2.bandwidth())
+		  .attr("height", function(d) { return height2 - y2(d.frequency); });
+	});
+	
+	var svg3 = d3.select("#test3"),
+		margin3 = {top: 20, right: 20, bottom: 30, left: 40},
+		width3 = +svg3.attr("width") - margin3.left - margin3.right,
+		height3 = +svg3.attr("height") - margin3.top - margin3.bottom;
+
+	var x3 = d3.scaleBand().rangeRound([0, width3]).padding(0.2),
+		y3 = d3.scaleLinear().rangeRound([height3 , 0]);
+
+	var g3 = svg3.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	d3.tsv("test3.tsv", function(d) {
+	  d.frequency = +d.frequency;
+	  return d;
+	}, function(error, data) {
+	  if (error) throw error;
+
+	  x3.domain(data.map(function(d) { return d.letter; }));
+	  y3.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+
+	  g3.append("g")
+		  .attr("class", "axis axis--x")
+		  .attr("transform", "translate(0," + height3 + ")")
+		  .style("font-size", "90%")
+		  .call(d3.axisBottom(x3));
+
+	  g3.append("g")
+		  .attr("class", "axis axis--y")
+		  .style("font-size", "90%")
+		  .call(d3.axisLeft(y3).ticks(10, "%"))
+		.append("text")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", "0.71em")
+		  .attr("text-anchor", "end")
+		  .text("Frequency");
+
+	  g3.selectAll(".bar")
+		.data(data)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x3(d.letter); })
+		  .attr("y", function(d) { return y3(d.frequency); })
+		  .attr("width", x3.bandwidth())
+		  .attr("height", function(d) { return height3 - y3(d.frequency); });
+	});
+	</script>
+</body>

@@ -1,0 +1,7 @@
+letter	frequency
+corpus_de_type_particulier/html 0.27%	0.0027
+corpus_de_type_particulier/mails 1.89%	0.01887
+corpus_de_type_particulier/zip 1.89%	0.01887
+corpus_peu_exploitable/nom_utilisable 35.63%	0.35633
+corpus_peu_exploitable/pas_exploitable 13.32%	0.13315
+Corpus/corpus_utilisable 47.01%	0.47008
